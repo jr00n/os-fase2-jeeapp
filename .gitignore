@@ -75,6 +75,7 @@ node_modules
 # Users Environment Variables
 .lock-wscript
 
+.codenvy
 
 ### Project
 src/main/webapp/lib/bower
