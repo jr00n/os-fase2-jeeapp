@@ -1,0 +1,9 @@
+<settings>
+  <mirrors>
+    <mirror>
+        <id>belastingdienst.repo</id>
+        <mirrorOf>*</mirrorOf>
+    	<url>http://rms.belastingdienst.nl/repo</url>
+    </mirror>
+  </mirrors>
+</settings>
