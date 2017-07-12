@@ -1,3 +1,5 @@
+package nl.jrOOn.javaee7angular;
+
 import nl.jrOOn.javaee7angular.CPULoad;
 import org.junit.experimental.categories.Category;
 
@@ -6,7 +8,7 @@ import org.junit.experimental.categories.Category;
  */
 @Category(nl.jrOOn.javaee7angular.category.IntegrationTest.class)
 public class LoadTest {
-    @org.junit.Test
+    //@org.junit.Test
     public void cpuLoadTest() throws Exception {
         CPULoad load = new CPULoad();
         load.run(new Byte("20"));
