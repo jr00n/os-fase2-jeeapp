@@ -1,7 +1,10 @@
 package nl.jrOOn.javaee7angular;
 
+import java.io.File;
 import java.util.regex.Pattern;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -10,6 +13,7 @@ import org.junit.experimental.categories.Category;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.Select;
 
 @Category(nl.jrOOn.javaee7angular.category.IntegrationTest.class)
@@ -22,6 +26,7 @@ public class WebTest {
     public void setUp() throws Exception {
         // @TODO met mvn parameters oplossen. In Jenkins vanuit openshift meegeven
         baseUrl = "http://os-fase2-jeeapp-java-pipeline.192.168.64.5.nip.io/";
+        //baseUrl = System.getProperty("seleniumtesturl");
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
     }
 
@@ -53,6 +58,15 @@ public class WebTest {
         System.out.println("Page title is: " + driver.getTitle());
         System.out.println("Useragent: "+ userAgent);
         //driver.findElement(By.xpath("//div[2]/div[2]/div[2]/div/div/div/div[2]")).click();
+    }
+
+    @Test
+    public void testScreenShot() throws Exception {
+        useFireFox();
+        driver.get(baseUrl + "/");
+        driver = new Augmenter().augment(driver);
+        File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(scrFile, new File("target/screeenshot.png"));
     }
 
     @After
