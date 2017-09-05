@@ -24,9 +24,7 @@ public class WebTest {
     private StringBuffer verificationErrors = new StringBuffer();
 
     public void setUp() throws Exception {
-        // @TODO met mvn parameters oplossen. In Jenkins vanuit openshift meegeven
-        baseUrl = "http://os-fase2-jeeapp-java-pipeline.192.168.64.5.nip.io/";
-        //baseUrl = System.getProperty("seleniumtesturl");
+        baseUrl = System.getProperty("seleniumtesturl");
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
     }
 
