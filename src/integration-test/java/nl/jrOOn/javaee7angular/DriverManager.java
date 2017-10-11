@@ -22,7 +22,10 @@ public class DriverManager {
         } else if(browser=="firefox"){
             caps=DesiredCapabilities.firefox();
         }
-        caps.setPlatform(Platform.LINUX);
-        return driver = new RemoteWebDriver(new URL(System.getProperty("seleniumhuburl")),caps);
+         caps.setPlatform(Platform.LINUX);
+        // "http://selenium-hub-java-pipeline.192.168.64.5.nip.io/wd/hub"
+        URL hubUrl = new URL(System.getProperty("seleniumhuburl"));
+        RemoteWebDriver driver = new RemoteWebDriver(hubUrl,caps);
+        return driver;
     }
 }
