@@ -1,7 +1,7 @@
 *** Settings ***
-Documentation     Resources needed for testcase
+Documentation     Robot Framework Example
 Library           Collections    # Standard
-Library           Selenium2Library    implicit_wait=5    #GUI Web testing
+Library           Selenium2Library #
 
 
 *** Variables ***
@@ -18,7 +18,7 @@ Start Browser
 
 *** Test Cases ***
 javaee7-angular
-    [Setup]    Start Browser   http://os-fase2-jeeapp-ywb-test.cloudapps.ont.belastingdienst.nl/
+    [Setup] Open Browser    http://os-fase2-jeeapp-ywb-test.cloudapps.ont.belastingdienst.nl/ ${BROWSER}  ${ALIAS}  ${REMOTE_URL}
     Input Text    name    Naam
     Input Text    description    Beschrijving
     Click Button    xpath=//button[@class='btn btn-primary' and @type='button']
