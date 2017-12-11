@@ -17,7 +17,7 @@ Start Browser
 
 *** Test Cases ***
 javaee7-angular
-    Open Browser  http://os-fase2-jeeapp-ywb-test.cloudapps.ont.belastingdienst.nl/ ${BROWSER}  ${ALIAS}  ${REMOTE_URL}
+    Open Browser  http://os-fase2-jeeapp-ywb-test.cloudapps.ont.belastingdienst.nl/ browser=chrome remote_url=http://selenium-hub-ywb-test.cloudapps.ont.belastingdienst.nl:80/wd/hub
     Maximize Browser Window
     Input Text    name  Naam
     Input Text    description    Beschrijving
