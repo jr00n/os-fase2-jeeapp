@@ -4,7 +4,7 @@ Library           Collections
 Library           Selenium2Library
 
 *** Variables ***
-${GRID_URL}     http://selenium-hub-ywb-test.cloudapps.ont.belastingdienst.nl:80/wd/hub
+${GRID_URL}     http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl:80/wd/hub
 ${BROWSER}        chrome
 ${ALIAS}          None
 
@@ -17,7 +17,7 @@ Start Browser
 
 *** Test Cases ***
 javaee7-angular
-    Open Browser  http://os-fase2-jeeapp-ywb-test.cloudapps.ont.belastingdienst.nl/  ${BROWSER}  None ${GRID_URL}
+    Open Browser  http://os-fase2-jeeapp-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/  ${BROWSER}  None ${GRID_URL}
     Maximize Browser Window
     Input Text    name  Naam
     Input Text    description    Beschrijving
