@@ -16,12 +16,15 @@ Open Remote Chrome through Selenium Hub
     ${desired capabilities}=    Evaluate    {'browserName': 'chrome'}
     ${executor}    Evaluate    sys.modules['selenium.webdriver'].remote.remote_connection.RemoteConnection('${selenium hub}', resolve_ip=False)    sys, selenium.webdriver
     Create Webdriver    Remote    command_executor=${executor}    desired_capabilities=${desired capabilities}
+    # Maximize Browser Window # werkt niet met headless framebuffer XVFB
+    # Selenium Browser nodes zijn geconfigureerd met (virtual) screen size 1360x1020x24bit
+    Set Window Size    1360    1020
     Go To     ${url}
 
 *** Test Cases ***
 javaee7-angular
     Open Remote Chrome through Selenium Hub    ${APP_URL}    ${GRID_URL}
-    Maximize Browser Window
+
     Input Text       name    Naam
     Input Text       description    Beschrijving
     Click Button     xpath=//button[@class='btn btn-primary' and @type='button']
