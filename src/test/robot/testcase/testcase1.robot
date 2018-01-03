@@ -17,7 +17,7 @@ Start Browser
 
 *** Test Cases ***
 javaee7-angular
-    Open Browser     http://os-fase2-jeeapp-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/    browser=chrome    desired_capabilities=browserName:chrome    remote_url=${GRID_URL}
+    Open Browser     http://os-fase2-jeeapp-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/    browser=chrome    desired_capabilities=browserName:chrome    remote_url=http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/wd/hub
     Maximize Browser Window
     Input Text       name    Naam
     Input Text       description    Beschrijving
