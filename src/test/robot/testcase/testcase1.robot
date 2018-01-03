@@ -4,14 +4,14 @@ Library           Collections
 Library           Selenium2Library
 
 *** Variables ***
-${GRID_URL}     http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl:80/wd/hub
+${GRID_URL}       http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/wd/hub
 ${BROWSER}        chrome
 ${ALIAS}          None
 
 *** Keywords ***
 Start Browser
     [Documentation]         Start browser on Selenium Grid
-    [Arguments]              ${URL}
+    [Arguments]             ${URL}
     Open Browser            ${URL}  ${BROWSER}  ${ALIAS}  ${REMOTE_URL}
     Maximize Browser Window
 
