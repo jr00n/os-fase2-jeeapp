@@ -24,7 +24,6 @@ Open Remote Chrome through Selenium Hub
 *** Test Cases ***
 javaee7-angular
     Open Remote Chrome through Selenium Hub    ${APP_URL}    ${GRID_URL}
-
     Input Text       name    Naam
     Input Text       description    Beschrijving
     Click Button     xpath=//button[@class='btn btn-primary' and @type='button']
@@ -35,3 +34,4 @@ javaee7-angular
     &{Dummy}         Create Dictionary    key1=value1    key2=value2
     Collections.Set To Dictionary    ${Dummy}    key3=value3
     Close Browser
+    [Teardown]    Close All Browsers
