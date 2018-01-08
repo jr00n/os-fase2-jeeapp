@@ -1,33 +1,22 @@
 *** Settings ***
 Documentation     Resources needed for testcase
-Library           Collections    # Standard
-Library           Selenium2Library    implicit_wait=5    #GUI Web testing
-
+Library           Collections
+Library           ExtendedSelenium2Library    implicit_wait=5
 
 *** Variables ***
-${REMOTE_URL}     http://selenium-hub-ywb-test.cloudapps.ont.belastingdienst.nl:80/wd/hub
+${GRID_URL}       http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/wd/hub
+${APP_URL}        http://os-fase2-jeeapp-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl
 ${BROWSER}        chrome
 ${ALIAS}          None
 
-
-
 *** Keywords ***
-Start Browser
-    [Documentation]         Start browser on Selenium Grid
-    [Arguments]              ${URL}
-    Open Browser            ${URL}  ${BROWSER}  ${ALIAS}  ${REMOTE_URL}
-    Maximize Browser Window
-
-Start_Chrome
-    [Arguments]    ${URL}
-    [Documentation]    Bij het starten van Chrome vanaf versie 57 verschijnt een pop-up-foutmelding over een extension die niet geladen kan worden.
-    ...
-    ...    Om het uitzetten van de blacklist te laten werken moet RobotFramework wel als administrator gestart worden.
-    ${options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
-    Call Method    ${options}    add_argument    disable-gpu
-    Create WebDriver    Chrome    chrome_options=${options}
-    Go To    ${URL}
-    Maximize Browser Window
-
-Teardown_browser
-    Close All Browsers
+Open Remote Chrome through Selenium Hub
+    [Documentation]         Start Chrome browser on Selenium Grid
+    [Arguments]             ${url}    ${selenium hub}
+    ${desired capabilities}=    Evaluate    {'browserName': 'chrome'}
+    ${executor}    Evaluate    sys.modules['selenium.webdriver'].remote.remote_connection.RemoteConnection('${selenium hub}', resolve_ip=False)    sys, selenium.webdriver
+    Create Webdriver    Remote    command_executor=${executor}    desired_capabilities=${desired capabilities}
+    # Maximize Browser Window # werkt niet met headless framebuffer XVFB
+    # Selenium Browser nodes zijn geconfigureerd met (virtual) screen size 1360x1020x24bit
+    Set Window Size    1360    1020
+    Go To     ${url}
