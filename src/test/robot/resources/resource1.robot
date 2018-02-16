@@ -4,8 +4,8 @@ Library           Collections
 Library           ExtendedSelenium2Library    implicit_wait=5
 
 *** Variables ***
-${GRID_URL}       http://selenium-hub-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl/wd/hub
-${APP_URL}        http://os-fase2-jeeapp-ontwikkelteam-demo.cloudapps.ont.belastingdienst.nl
+${GRID_URL}       http://selenium-hub-ywb-t.cloudapps.ont.belastingdienst.nl/wd/hub
+${APP_URL}        http://os-fase2-jeeapp-ywb-t.cloudapps.ont.belastingdienst.nl
 ${BROWSER}        chrome
 ${ALIAS}          None
 
