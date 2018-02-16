@@ -31,6 +31,17 @@ try {
             stage("Deploy Image") {
                 openshiftDeploy deploymentConfig: appName, namespace: project
             }
+
+            stage("UI Testing") {
+                // service discovery..app
+                def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
+                // service discovery..selenium Hub
+                def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
+                seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+
+                sh(script: "mvn integration-test -Pintegration-test -Dseleniumhuburl=${seleniumHubURL} -Dseleniumtesturl=http://${appURL}")
+                archiveArtifacts artifacts: 'target/screeenshot.png'
+            }
         }
     }
 } catch (err) {
