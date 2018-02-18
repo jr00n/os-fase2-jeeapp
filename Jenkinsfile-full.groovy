@@ -6,7 +6,6 @@ try {
                 " --server=https://openshift.default.svc.cluster.local" +
                 " --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         def mvnCmd = "mvn"
-        def seleniumHubURL ="http://selenium-hub-ywb.cloudapps.belastingdienst.nl/wd/hub"
 
         node {
             stage("Initialize") {
@@ -16,7 +15,7 @@ try {
                 ocCmd = ocCmd + " -n ${project}"
             }
         }
-        node("maven-jos-openjdk8") {
+        node("jos-m3-openjdk8") {
             stage("Git Checkout") {
                 git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
             }
@@ -36,7 +35,12 @@ try {
             stage ('Test and Analysis') {
                 parallel(
                         'UI Testing': {
-                            def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
+                            // service discovery..app
+                            def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
+                            // service discovery..selenium Hub
+                            def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
+                            seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+
                             sh(script: "mvn integration-test -Pintegration-test -Dseleniumhuburl=${seleniumHubURL} -Dseleniumtesturl=http://${appURL}")
                             archiveArtifacts artifacts: 'target/screeenshot.png'
                         },
@@ -44,6 +48,17 @@ try {
                             sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
                         }
                 )
+            }
+            stage('Sanity check') {
+                steps {
+                    input "Does the staging environment look ok?"
+                }
+            }
+
+            stage('Deploy - Production') {
+                steps {
+                    sh 'echo implement'
+                }
             }
         }
     }
