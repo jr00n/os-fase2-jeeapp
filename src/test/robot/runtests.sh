@@ -6,8 +6,8 @@ then
 fi
 
 
-pybot --outputdir ./output --timestamp --loglevel DEBUG ./testcase/testcase1.robot --variable GRID_URL:$1 --variable APP_URL:$2 || ERROR=true
-pybot --outputdir ./output --timestamp --loglevel DEBUG ./testcase/testcase2.robot --variable GRID_URL:$1 --variable APP_URL:$2 || ERROR=true
+pybot --outputdir ./output --timestamp --loglevel DEBUG --variable GRID_URL:$1 --variable APP_URL:$2 ./testcase/testcase1.robot || ERROR=true
+pybot --outputdir ./output --timestamp --loglevel DEBUG --variable GRID_URL:$1 --variable APP_URL:$2 ./testcase/testcase2.robot || ERROR=true
 
 #Fail the build if there was an error
 if [ $ERROR ]

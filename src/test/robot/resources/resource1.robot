@@ -4,8 +4,6 @@ Library           Collections
 Library           ExtendedSelenium2Library    implicit_wait=5
 
 *** Variables ***
-${GRID_URL}
-${APP_URL}
 ${BROWSER}        chrome
 ${ALIAS}          None
 
