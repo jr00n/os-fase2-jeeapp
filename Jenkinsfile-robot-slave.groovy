@@ -23,12 +23,13 @@ try {
                 stage("Robot Testing") {
                     // service discovery..app
                     def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
+                    appURL = "htttp://" + appURL
                     // service discovery..selenium Hub
                     def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout:true)
                     seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
                     dir ('src/test/robot') {
                         sh('chmod +x ./runtests.sh')
-                        sh('./runtests.sh')
+                        sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
                     }
                 }
             }
