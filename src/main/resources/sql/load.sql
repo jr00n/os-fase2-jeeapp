@@ -4,7 +4,7 @@ INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (3, 'Haruno S
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (4, 'Uchiha Sasuke', 'Missing-nin', 'pic/Uchiha_Sasuke.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (5, 'Gaara', 'Sunagakure', 'pic/Gaara.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (6, 'Killer Bee', 'Kumogakure', 'pic/Killer_Bee.png')
-INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (7, 'Jiraya', 'Konoha', 'pic/Jiraya.png')
+INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (7, 'Jiraya', 'Konoha', 'pic/Jiraiya.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (8, 'Namikaze Minato', 'Konoha', 'pic/Namikaze_Minato.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (9, 'Uchiha Madara', 'Missing-nin', 'pic/Uchiha_Madara.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (10, 'Senju Hashirama', 'Konoha', 'pic/Senju_Hashirama.png')
