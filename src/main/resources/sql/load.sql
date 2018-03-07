@@ -1,5 +1,5 @@
-INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (1, 'Uzumaki Naruto', 'Konoha', 'http://img1.wikia.nocookie.net/__cb20140523045537/naruto/images/thumb/3/36/Naruto_Uzumaki.png/300px-Naruto_Uzumaki.png')
-INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (2, 'Hatake Kakashi', 'Konoha', 'http://img1.wikia.nocookie.net/__cb20140616090940/naruto/images/thumb/b/b3/KakashiHatake.png/300px-KakashiHatake.png')
+INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (1, 'Uzumaki Naruto', 'Konoha', 'pic/Uzumaki_Naruto.png')
+INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (2, 'Hatake Kakashi', 'Konoha', 'pic/Hatake_Kakashi.png')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (3, 'Haruno Sakura', 'Konoha', 'http://vignette2.wikia.nocookie.net/naruto/images/b/ba/Sakurap2.png/revision/latest/scale-to-width-down/300?cb=20150825101949')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (4, 'Uchiha Sasuke', 'Missing-nin', 'http://vignette1.wikia.nocookie.net/naruto/images/9/98/Sasuke_p2_headshot.png/revision/latest?cb=20150110232732')
 INSERT INTO PERSON("ID", "NAME", "DESCRIPTION", "IMAGEURL") VALUES (5, 'Gaara', 'Sunagakure', 'http://img3.wikia.nocookie.net/__cb20130910220958/naruto/images/thumb/0/0f/Gaara_Part_II.png/300px-Gaara_Part_II.png')
