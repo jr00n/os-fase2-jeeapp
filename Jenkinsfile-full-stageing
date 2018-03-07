@@ -2,6 +2,7 @@ try {
     timeout(time: 20, unit: 'MINUTES') {
         def appName = "os-fase2-jeeapp"
         def project = ""
+        def version
         def ocCmd = "oc " +
                 " --server=https://openshift.default.svc.cluster.local" +
                 " --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -18,12 +19,24 @@ try {
         node("jos-m3-openjdk8") {
             stage("Git Checkout") {
                 git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
+                script {
+                    def pom = readMavenPom file: 'pom.xml'
+                    version = pom.version
+                }
             }
-            stage("Build WAR") {
+            stage("Build app") {
                 sh "${mvnCmd} clean package -Popenshift"
                 stash name: "all"
             }
+
             stage("Build Image") {
+                //script {
+                //    openshift.withCluster() {
+                //        openshift.withProject(project) {
+                //            openshift.selector("bc","${appName}-docker").startBuild("--from-file=target/ROOT.war", "--wait=true")
+                //        }
+                //    }
+                //}
                 sh "oc start-build ${appName}-docker --from-file=target/ROOT.war -n ${project}"
                 openshiftVerifyBuild bldCfg: "${appName}-docker", namespace: project, waitTime: '20', waitUnit: 'min'
             }
@@ -55,12 +68,29 @@ try {
             )
         }
         node() {
-            stage('Sanity check') {
-                input "Does the staging environment look ok?"
+            stage('Promote to STAGE?') {
+                timeout(time:15, unit:'MINUTES') {
+                    input message: "Promote to STAGE?", ok: "Promote"
+                }
+                script {
+                    openshift.withCluster() {
+                        openshift.tag("${project}/${appName}:latest", "demojavateam-stage/${appName}:${version}")
+                    }
+                }
             }
-
-            stage('Deploy - Production') {
-                sh 'echo implement'
+            stage('Deploy STAGE') {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject("demojavateam-stage") {
+                            if (openshift.selector('dc', "${appName}").exists()) {
+                                openshift.selector('dc', "${appName}").delete()
+                                openshift.selector('svc', "${appName}").delete()
+                                openshift.selector('route', "${appName}").delete()
+                            }
+                            openshift.newApp("${appName}:${version}").narrow("svc").expose()
+                        }
+                    }
+                }
             }
         }
     }
