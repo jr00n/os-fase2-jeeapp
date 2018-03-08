@@ -62,7 +62,16 @@
           securityContext: {}
           terminationGracePeriodSeconds: 30
       test: false
-      triggers: {}
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: false
+            containerNames:
+            - os-fase2-jeeapp
+            from:
+              kind: ImageStreamTag
+              name: os-fase2-jeeapp:production
     status: {}
   - apiVersion: v1
     kind: Service
