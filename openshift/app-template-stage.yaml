@@ -62,7 +62,7 @@
           securityContext: {}
           terminationGracePeriodSeconds: 30
       test: false
-      triggers:{}
+      triggers: {}
     status: {}
   - apiVersion: v1
     kind: Service
