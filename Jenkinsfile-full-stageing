@@ -72,9 +72,16 @@ try {
                 timeout(time:15, unit:'MINUTES') {
                     input message: "Promote to STAGE?", ok: "Promote"
                 }
+                unstash name: "all"
+                openshift.verbose()
+                openshift.loglevel(2)
+
                 script {
                     openshift.withCluster() {
+                        // maak een nieuwe tag/versie
                         openshift.tag("${project}/${appName}:latest", "demojavateam-stage/${appName}:${version}")
+                        // maak deze versie production ready in het stagep project
+                        openshift.tag("demojavateam-stage/${appName}:${version}", "demojavateam-stage/${appName}:production")
                     }
                 }
             }
@@ -82,12 +89,20 @@ try {
                 script {
                     openshift.withCluster() {
                         openshift.withProject("demojavateam-stage") {
+                            // ruim eerst de objecten op die zijn blijven staan
                             if (openshift.selector('dc', "${appName}").exists()) {
                                 openshift.selector('dc', "${appName}").delete()
                                 openshift.selector('svc', "${appName}").delete()
                                 openshift.selector('route', "${appName}").delete()
                             }
-                            openshift.newApp("${appName}:${version}").narrow("svc").expose()
+                            result = openshift.raw("create", "-f openshift/app-template-stage.yaml")
+                            // dit template moet een deployment hebben van het image met tag 'production'
+
+                            // en we starten een deployment in OpenShift
+                            if (openshift.selector('dc', "${appName}").exists()) {
+                                // deze latest heeft niets met tag 'latest' te maken
+                                openshift.raw("rollout","latest","${appName}")
+                            }
                         }
                     }
                 }
