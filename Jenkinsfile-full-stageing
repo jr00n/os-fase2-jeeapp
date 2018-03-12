@@ -68,9 +68,9 @@ try {
             )
         }
         node() {
-            stage('Promote to STAGE?') {
+            stage('Promote to PROD?') {
                 timeout(time:15, unit:'MINUTES') {
-                    input message: "Promote to STAGE?", ok: "Promote"
+                    input message: "Promote to PROD?", ok: "Promote"
                 }
                 unstash name: "all"
                 openshift.verbose()
@@ -79,23 +79,23 @@ try {
                 script {
                     openshift.withCluster() {
                         // maak een nieuwe tag/versie
-                        openshift.tag("${project}/${appName}:latest", "demojavateam-stage/${appName}:${version}")
+                        openshift.tag("${project}/${appName}:latest", "demojavateam/${appName}:${version}")
                         // maak deze versie production ready in het stagep project
-                        openshift.tag("demojavateam-stage/${appName}:${version}", "demojavateam-stage/${appName}:production")
+                        openshift.tag("demojavateam/${appName}:${version}", "demojavateam/${appName}:production")
                     }
                 }
             }
-            stage('Deploy STAGE') {
+            stage('Deploy PROD') {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("demojavateam-stage") {
+                        openshift.withProject("demojavateam") {
                             // ruim eerst de objecten op die zijn blijven staan
                             if (openshift.selector('dc', "${appName}").exists()) {
                                 openshift.selector('dc', "${appName}").delete()
                                 openshift.selector('svc', "${appName}").delete()
                                 openshift.selector('route', "${appName}").delete()
                             }
-                            result = openshift.raw("create", "-f openshift/app-template-stage.yaml")
+                            result = openshift.raw("create", "-f openshift/app-template-prod.yaml")
                             // dit template moet een deployment hebben van het image met tag 'production'
 
                             // en we starten een deployment in OpenShift
