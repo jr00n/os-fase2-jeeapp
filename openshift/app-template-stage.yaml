@@ -29,7 +29,7 @@
             deploymentconfig: os-fase2-jeeapp
         spec:
           containers:
-          - image: os-fase2-jeeapp:production
+          - image: os-fase2-jeeapp:latest
             imagePullPolicy: Always
             name: os-fase2-jeeapp
             ports:
@@ -66,12 +66,12 @@
         - type: ConfigChange
         - type: ImageChange
           imageChangeParams:
-            automatic: true
+            automatic: false
             containerNames:
             - os-fase2-jeeapp
             from:
               kind: ImageStreamTag
-              name: os-fase2-jeeapp:production
+              name: os-fase2-jeeapp:latest
     status: {}
   - apiVersion: v1
     kind: Service
