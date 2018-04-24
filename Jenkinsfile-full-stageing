@@ -48,7 +48,7 @@ try {
             parallel(
                     'Robot Testing': {
                         node("jos-robotframework") {
-                            catchError {
+                            try {
                                 unstash name: "all"
                                 // service discovery..app
                                 def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
@@ -62,8 +62,12 @@ try {
                                     sh('chmod +x ./runtests.sh')
                                     sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
                                 }
+                            } catch (error) {
+                                // Slurp Error ;)
+                                //throw error
+                            } finally {
+                                archive 'src/test/robot/output/*'
                             }
-                            archive 'src/test/robot/output/*'
                         }
                     },
                     'Static Analysis': {
