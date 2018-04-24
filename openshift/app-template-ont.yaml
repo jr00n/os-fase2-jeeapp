@@ -126,7 +126,7 @@
       triggers:
       - type: ConfigChange
       - imageChangeParams:
-          automatic: true
+          automatic: false
           containerNames:
           - os-fase2-jeeapp
           from:

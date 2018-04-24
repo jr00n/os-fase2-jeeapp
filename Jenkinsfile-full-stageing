@@ -54,13 +54,14 @@ try {
                             // service discovery..selenium Hub
                             def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
                             seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+                            //seleniumHubURL = "http://selenium-grid:4444/wd/hub"
 
                             sh(script: "mvn integration-test -Pintegration-test -Dseleniumhuburl=${seleniumHubURL} -Dseleniumtesturl=http://${appURL}")
                             archiveArtifacts artifacts: 'target/screeenshot.png'
                         }
                     },
                     'Static Analysis': {
-                        node("jos-m3-openjdk8") {
+                        node("jos-m3-openjdk8-2") {
                             unstash name: "all"
                             sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
                         }
@@ -68,35 +69,26 @@ try {
             )
         }
         node() {
-            stage('Promote to PROD?') {
-                timeout(time:15, unit:'MINUTES') {
-                    input message: "Promote to PROD?", ok: "Promote"
-                }
+            stage('Deploy to STAGE') {
+
                 unstash name: "all"
                 openshift.verbose()
                 openshift.loglevel(2)
 
                 script {
                     openshift.withCluster() {
-                        // maak een nieuwe tag/versie
-                        openshift.tag("${project}/${appName}:latest", "demojavateam/${appName}:${version}")
-                        // maak deze versie production ready in het stagep project
-                        openshift.tag("demojavateam/${appName}:${version}", "demojavateam/${appName}:production")
-                    }
-                }
-            }
-            stage('Deploy PROD') {
-                script {
-                    openshift.withCluster() {
-                        openshift.withProject("demojavateam") {
+                        // maak een nieuwe tag/versie in stage area
+                        openshift.tag("${project}/${appName}:latest", "demojavateam-stage/${appName}:latest")
+
+                        openshift.withProject("demojavateam-stage") {
                             // ruim eerst de objecten op die zijn blijven staan
                             if (openshift.selector('dc', "${appName}").exists()) {
                                 openshift.selector('dc', "${appName}").delete()
                                 openshift.selector('svc', "${appName}").delete()
                                 openshift.selector('route', "${appName}").delete()
                             }
-                            result = openshift.raw("create", "-f openshift/app-template-prod.yaml")
-                            // dit template moet een deployment hebben van het image met tag 'production'
+                            result = openshift.raw("apply", "-f openshift/app-template-stage.yaml")
+                            // dit template moet een deployment hebben van het image met tag 'latest'
 
                             // en we starten een deployment in OpenShift
                             if (openshift.selector('dc', "${appName}").exists()) {
@@ -104,6 +96,21 @@ try {
                                 openshift.raw("rollout","latest","${appName}")
                             }
                         }
+                    }
+                }
+            }
+
+            stage('Promote to PROD?') {
+                timeout(time:30, unit:'MINUTES') {
+                    input message: "Promote to PROD?", ok: "Promote"
+                }
+
+                script {
+                    openshift.withCluster() {
+                        // maak een nieuwe tag/versie
+                        openshift.tag("${project}/${appName}:latest", "demojavateam/${appName}:${version}")
+                        // maak deze versie production ready in het stagep project
+                        openshift.tag("demojavateam/${appName}:${version}", "demojavateam/${appName}:production")
                     }
                 }
             }
