@@ -46,22 +46,28 @@ try {
         }
         stage('Test and Analysis') {
             parallel(
-                    'UI Testing': {
-                        node("jos-m3-openjdk8") {
-                            unstash name: "all"
-                            // service discovery..app
-                            def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                            // service discovery..selenium Hub
-                            def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                            seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
-                            //seleniumHubURL = "http://selenium-grid:4444/wd/hub"
+                    'Robot Testing': {
+                        node("jos-robotframework") {
+                            catchError {
+                                unstash name: "all"
+                                // service discovery..app
+                                def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
+                                appURL = "http://" + appURL
+                                // service discovery..selenium Hub
+                                def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
+                                seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+                                //seleniumHubURL = "http://selenium-grid:4444/wd/hub" // werkt helaas nog niet, uitzoeken!!
 
-                            sh(script: "mvn integration-test -Pintegration-test -Dseleniumhuburl=${seleniumHubURL} -Dseleniumtesturl=http://${appURL}")
-                            archiveArtifacts artifacts: 'target/screeenshot.png'
+                                dir ('src/test/robot') {
+                                    sh('chmod +x ./runtests.sh')
+                                    sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
+                                }
+                            }
+                            archive 'src/test/robot/output/*'
                         }
                     },
                     'Static Analysis': {
-                        node("jos-m3-openjdk8-2") {
+                        node("jos-m3-openjdk8") {
                             unstash name: "all"
                             sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
                         }
