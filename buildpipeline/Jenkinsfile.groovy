@@ -8,9 +8,11 @@ def testSonarLoginId = '0d75d7f2e108b6171cac29522e20fea444933be8'
 
 pipeline {
     agent none
-
+    options {
+		skipDefaultCheckout()
+	}
     stages {
-        stage('Maven build & unit test'){
+        stage('Maven build & unit test') {
             agent {
                 label "jos-m3-openjdk8"
             }
@@ -23,9 +25,8 @@ pipeline {
 		    	sh(script: "${mvnCmd} clean package")
 		    	// maven profile 'sonarqube' staat in root pom JOS
 		    	//sh(script: "${mvnCmd} sonar:sonar -Psonarqube -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
-                }
-		    }
-	    }
+            }
+		}
 
         /*
         stages {
