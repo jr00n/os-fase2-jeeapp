@@ -1,41 +1,50 @@
-try {
-    timeout(time: 20, unit: 'MINUTES') {
-        def appName = "os-fase2-jeeapp"
-        def project = ""
-        def ocCmd = "oc " +
-                " --server=https://openshift.default.svc.cluster.local" +
-                " --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-        def mvnCmd = "mvn"
+#!groovy
+def mvnCmd = "mvn -s buildpipeline/maven-settings.xml"
+def appName = "os-fase2-jeeapp"
+def version
+def project = env.PROJECT_NAME
+def testSonarHostUrl = 'https://ooossrql11.ont.belastingdienst.nl/sonar/'
+def testSonarLoginId = '0d75d7f2e108b6171cac29522e20fea444933be8'
 
-        node {
-            stage("Initialize") {
-                def token = sh(script: 'cat /var/run/secrets/kubernetes.io/serviceaccount/token', returnStdout: true)
-                ocCmd = ocCmd + " --token=" + token
-                project = env.PROJECT_NAME
-                ocCmd = ocCmd + " -n ${project}"
+pipeline {
+    agent none
+
+    stages {
+        stage('Maven build & unit test'){
+            agent {
+                label "jos-m3-openjdk8"
             }
-        }
-        node("jos-m3-openjdk8") {
-            stage("Git Checkout") {
-                git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
+            steps {
+                checkout scm
+                script {
+                    def pom = readMavenPom file: 'pom.xml'
+                    version = pom.version
+                }
+		    	sh(script: "${mvnCmd} clean package")
+		    	// maven profile 'sonarqube' staat in root pom JOS
+		    	//sh(script: "${mvnCmd} sonar:sonar -Psonarqube -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
+                }
+		    }
+	    }
+
+        /*
+        stages {
+            stage('Build image') {
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.withProject(env.INVENTORY_DEV_PROJECT) {
+                                openshift.startBuild("inventory", "--wait=true")
+                            }
+                        }
+                    }
+                }
             }
-            stage("Build WAR") {
-                sh "${mvnCmd} clean package -Popenshift"
-                //stash name: "war", includes: "target/ROOT.war"
+            stage('Run Tests in DEV') {
+                steps {
+                    sleep 10
+                }
             }
-            stage("Build Image") {
-                //unstash name:"war"
-                sh "oc start-build ${appName}-docker --from-file=target/ROOT.war -n ${project}"
-                openshiftVerifyBuild bldCfg: "${appName}-docker", namespace: project, waitTime: '20', waitUnit: 'min'
-            }
-            stage("Deploy Image") {
-                openshiftDeploy deploymentConfig: appName, namespace: project
-            }
-        }
+        */
     }
-} catch (err) {
-    echo "in catch block"
-    echo "Caught: ${err}"
-    currentBuild.result = 'FAILURE'
-    throw err
 }
