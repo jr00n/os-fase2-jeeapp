@@ -18,7 +18,8 @@ try {
         }
         node("jos-m3-openjdk8") {
             stage("Git Checkout") {
-                git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
+                //git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
+                checkout scm
                 script {
                     def pom = readMavenPom file: 'pom.xml'
                     version = pom.version
