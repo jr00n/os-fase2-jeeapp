@@ -24,25 +24,42 @@ try {
                     def pom = readMavenPom file: 'pom.xml'
                     version = pom.version
                 }
+                stash(name: 'ws', includes: '**', excludes: '**/.git/**')
             }
             stage("Build and Unit test") {
                 sh "${mvnCmd} clean package -Popenshift"
-                stash name: "all"
+                stash name: 'war', includes: 'target/**/*'
             }
 
             stage("Build Image") {
-                //script {
-                //    openshift.withCluster() {
-                //        openshift.withProject(project) {
-                //            openshift.selector("bc","${appName}-docker").startBuild("--from-file=target/ROOT.war", "--wait=true")
-                //        }
-                //    }
+                script {
+                    openshift.withCluster() {
+                        if (! openshift.selector('bc', "${appName}").exists()) {
+                                openshift.newBuild("--name=${appName}", "--image-stream=wildfly:10.1", "--binary=true")
+                        }
+                        openshift.selector("bc","${appName}").startBuild("--from-file=target/ROOT.war", "--wait=true")
+                    }
+                }
                 //}
-                sh "oc start-build ${appName}-docker --from-file=target/ROOT.war -n ${project}"
-                openshiftVerifyBuild bldCfg: "${appName}-docker", namespace: project, waitTime: '20', waitUnit: 'min'
+                //sh "oc start-build ${appName}-docker --from-file=target/ROOT.war -n ${project}"
+                //openshiftVerifyBuild bldCfg: "${appName}-docker", namespace: project, waitTime: '20', waitUnit: 'min'
             }
             stage("Deploy Image") {
-                openshiftDeploy deploymentConfig: appName, namespace: project
+                script {
+                    openshift.withCluster() {
+                        if (! openshift.selector('dc', "${appName}").exists()) {
+                            openshift.raw("apply", "-f openshift/app-template-ont.yaml")        
+                        }
+                        def dc = openshift.selector("dc", "${appName}");
+                        dc.rollout().latest();
+
+                        
+                        // checken of dit anders kan! We moeten weten of de new pod ready is for traffic!
+                        while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
+                            sleep 10
+                        }
+                    }
+                }
             }
         }
         stage('Test and Analysis') {
@@ -50,7 +67,7 @@ try {
                     'Robot Testing': {
                         node("jos-robotframework") {
                             try {
-                                unstash name: "all"
+                                unstash name: "ws"
                                 // service discovery..app
                                 def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
                                 appURL = "http://" + appURL
@@ -65,6 +82,9 @@ try {
                                 }
                             } catch (error) {
                                 // Slurp Error ;)
+                                // nu voor de demo even laten doorlopen....
+                                // wat er zitten fouten in en ik wil erroreport tonen
+                                // maar wel door met deployen
                                 //throw error
                             } finally {
                                 archive 'src/test/robot/output/*'
@@ -72,9 +92,16 @@ try {
                         }
                     },
                     'Static Analysis': {
-                        node("jos-m3-openjdk8") {
-                            unstash name: "all"
-                            sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
+                        openshift.withCluster() {
+                            if(openshift.selector("svc", "sonarqube").exists()) {
+                                node("jos-m3-openjdk8") {
+                                    unstash name: "ws"
+                                    unstash name: "war"
+                                    sh(script: "${mvnCmd} sonar:sonar -P!jos -Dsonar.host.url=http://sonarqube:9000 -DskipTests")
+                                }
+                            } else {
+                                currentBuild.result='FAILURE'
+                            }
                         }
                     }
             )
@@ -82,16 +109,16 @@ try {
         node() {
             stage('Deploy to STAGE') {
 
-                unstash name: "all"
+                unstash name: "ws"
                 openshift.verbose()
                 openshift.loglevel(2)
 
                 script {
                     openshift.withCluster() {
                         // maak een nieuwe tag/versie in stage area
-                        openshift.tag("${project}/${appName}:latest", "demojavateam-stage/${appName}:latest")
+                        openshift.tag("${project}/${appName}:latest", "javateam-stage/${appName}:latest")
 
-                        openshift.withProject("demojavateam-stage") {
+                        openshift.withProject("javateam-stage") {
                             // ruim eerst de objecten op die zijn blijven staan
                             if (openshift.selector('dc', "${appName}").exists()) {
                                 openshift.selector('dc', "${appName}").delete()
@@ -100,6 +127,7 @@ try {
                             }
                             result = openshift.raw("apply", "-f openshift/app-template-stage.yaml")
                             // dit template moet een deployment hebben van het image met tag 'latest'
+                            // er zit geen trigger in om te deployen bij image change
 
                             // en we starten een deployment in OpenShift
                             if (openshift.selector('dc', "${appName}").exists()) {
@@ -119,9 +147,9 @@ try {
                 script {
                     openshift.withCluster() {
                         // maak een nieuwe tag/versie
-                        openshift.tag("${project}/${appName}:latest", "demojavateam/${appName}:${version}")
+                        openshift.tag("${project}/${appName}:latest", "javateam/${appName}:${version}")
                         // maak deze versie production ready in het stagep project
-                        openshift.tag("demojavateam/${appName}:${version}", "demojavateam/${appName}:production")
+                        openshift.tag("javateam/${appName}:${version}", "javateam/${appName}:production")
                     }
                 }
             }
