@@ -25,7 +25,7 @@ try {
                     version = pom.version
                 }
             }
-            stage("Build app") {
+            stage("Build and Unit test") {
                 sh "${mvnCmd} clean package -Popenshift"
                 stash name: "all"
             }
