@@ -116,7 +116,7 @@ try {
                 script {
                     openshift.withCluster() {
                         // maak een nieuwe tag/versie in stage area
-                        openshift.tag("${project}/${appName}:latest", "javateam-stage/${appName}:latest")
+                        openshift.tag("${appName}:latest", "javateam-stage/${appName}:latest")
 
                         openshift.withProject("javateam-stage") {
                             // ruim eerst de objecten op die zijn blijven staan
@@ -147,13 +147,13 @@ try {
                 script {
                     openshift.withCluster() {
                         // maak een nieuwe tag/versie
-                        openshift.tag("${project}/${appName}:latest", "javateam/${appName}:${version}")
+                        openshift.tag("${appName}:latest", "javateam/${appName}:${version}")
                         // maak deze versie production ready in het stagep project
                         openshift.tag("javateam/${appName}:${version}", "javateam/${appName}:production")
                     }
                 }
             }
-        }
+        }   
     }
 } catch (err) {
     echo "in catch block"
