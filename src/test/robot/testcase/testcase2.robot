@@ -11,7 +11,7 @@ javaee7-angular
     Click Link       xpath=//a[text()='2']
     Click Element    xpath=//span[text()='Kurama']
     ${imageURL}=     Get Element Attribute    //div[@ng-if='person.imageUrl']/img[1]@src
-    Should Be Equal As Strings     http://os-fase2-jeeapp-demojavateam-o.cloudapps.belastingdienst.nl/pic/Kurama.png    ${imageURL}
+    Should Be Equal As Strings     http://os-fase2-jeeapp-javateam-o.cloudapps.belastingdienst.nl/pic/Kurama.png    ${imageURL}
     &{Dummy}         Create Dictionary    key1=value1    key2=value2
     Collections.Set To Dictionary    ${Dummy}    key3=value3
     Close Browser
