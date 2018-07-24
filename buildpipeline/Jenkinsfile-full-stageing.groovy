@@ -68,6 +68,8 @@ try {
                         node("jos-robotframework") {
                             try {
                                 unstash name: "ws"
+                                // always start with a clean test output directory
+                                sh(script: "rm -rf src/test/robot/output/")
                                 // service discovery..app
                                 def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
                                 appURL = "http://" + appURL
@@ -88,6 +90,7 @@ try {
                                 //throw error
                             } finally {
                                 archive 'src/test/robot/output/*'
+                                sh(script: "rm -rf src/test/robot/output/")
                             }
                         }
                     },
@@ -114,7 +117,7 @@ try {
                 openshift.loglevel(2)
 
                 script {
-                    openshift.withCluster() {
+                    openshift.wix§thCluster() {
                         // maak een nieuwe tag/versie in stage area
                         openshift.tag("${appName}:latest", "javateam-stage/${appName}:latest")
 
