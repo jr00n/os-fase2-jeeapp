@@ -117,7 +117,7 @@ try {
                 openshift.loglevel(2)
 
                 script {
-                    openshift.wix§thCluster() {
+                    openshift.withCluster() {
                         // maak een nieuwe tag/versie in stage area
                         openshift.tag("${appName}:latest", "javateam-stage/${appName}:latest")
 
