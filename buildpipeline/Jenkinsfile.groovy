@@ -148,18 +148,9 @@ pipeline {
                     agent {
                         label "jos-m3-openjdk8"
                     }
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return openshift.selector("svc", "sonarqube").exists();
-                            }
-                        }
-                    }
                     steps {
                         unstash 'ws'
-                        //sh(script: "${mvnCmd} sonar:sonar -Psonarqube -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
-                        // deactivate profile jos omdat daar Sonar JOS settings in staan, wij willen naar een eigen Sonar
-                        sh(script: "${mvnCmd} sonar:sonar -P !jos -Dsonar.host.url=http://sonarqube:9000 -DskipTests")
+                        sh(script: "${mvnCmd} sonar:sonar -DskiptTests -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
                     }
                 }
             )
