@@ -59,53 +59,34 @@ try {
             }
         }
         stage('Test and Analysis') {
-            parallel(
-                    'Robot Testing': {
-                        node("jos-robotframework") {
-                            try {
-                                unstash name: "ws"
-                                // always start with a clean test output directory
-                                sh(script: "rm -rf src/test/robot/output/")
-                                // service discovery..app
-                                def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                                appURL = "http://" + appURL
-                                // service discovery..selenium Hub
-                                def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                                seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
-                                //seleniumHubURL = "http://selenium-grid:4444/wd/hub" // werkt helaas nog niet, uitzoeken!!
+            node("jos-robotframework") {
+                try {
+                    unstash name: "ws"
+                    // always start with a clean test output directory
+                    sh(script: "rm -rf src/test/robot/output/")
+                    // service discovery..app
+                    def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
+                    appURL = "http://" + appURL
+                    // service discovery..selenium Hub
+                    def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
+                    seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+                    //seleniumHubURL = "http://selenium-grid:4444/wd/hub" // werkt helaas nog niet, uitzoeken!!
 
-                                dir ('src/test/robot') {
-                                    sh('chmod +x ./runtests.sh')
-                                    sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
-                                }
-                            } catch (error) {
-                                // Slurp Error ;)
-                                // nu voor de demo even laten doorlopen....
-                                // wat er zitten fouten in en ik wil erroreport tonen
-                                // maar wel door met deployen
-                                //throw error
-                            } finally {
-                                archive 'src/test/robot/output/*'
-                                sh(script: "rm -rf src/test/robot/output/")
-                            }
-                        }
-                    },
-                    'Static Analysis': {
-                        openshift.withCluster() {
-                            if(openshift.selector("svc", "sonarqube").exists()) {
-                                node("jos-m3-openjdk8") {
-                                    unstash name: "ws"
-                                    unstash name: "war"
-                                    // moet met full url anders kloppen de urls in de rapporten niet
-                                    // dus via get routes!
-                                    sh(script: "${mvnCmd} sonar:sonar -P!jos -Dsonar.host.url=http://sonarqube:9000 -DskipTests")
-                                }
-                            } else {
-                                currentBuild.result='FAILURE'
-                            }
-                        }
+                    dir ('src/test/robot') {
+                        sh('chmod +x ./runtests.sh')
+                        sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
                     }
-            )
+                } catch (error) {
+                    // Slurp Error ;)
+                    // nu voor de demo even laten doorlopen....
+                    // wat er zitten fouten in en ik wil erroreport tonen
+                    // maar wel door met deployen
+                    //throw error
+                } finally {
+                    archive 'src/test/robot/output/*'
+                    sh(script: "rm -rf src/test/robot/output/")
+                }
+            }
         }
     }
 } catch (err) {
