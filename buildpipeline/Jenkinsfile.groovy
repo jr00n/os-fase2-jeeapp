@@ -113,7 +113,7 @@ pipeline {
             }
         }
         stage('Test and Analysis') {
-            parallel(
+            parallel { 
                 stage('Robot Testing') {
                     agent {
                         label "jos-robotframework"
@@ -153,7 +153,7 @@ pipeline {
                         sh(script: "${mvnCmd} sonar:sonar -DskiptTests -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
                     }
                 }
-            )
+            }
         }
     }
 }
