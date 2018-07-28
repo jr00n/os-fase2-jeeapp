@@ -8,7 +8,7 @@ try {
                 " --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         def mvnCmd = "mvn"
 
-        node {
+        node("master") {
             stage("Initialize") {
                 def token = sh(script: 'cat /var/run/secrets/kubernetes.io/serviceaccount/token', returnStdout: true)
                 ocCmd = ocCmd + " --token=" + token
@@ -18,7 +18,6 @@ try {
         }
         node("jos-m3-openjdk8") {
             stage("Git Checkout") {
-                //git branch: 'master', url: 'ssh://git@git.belastingdienst.nl:7999/~wolfj09/os-fase2-jeeapp.git'
                 checkout scm
                 script {
                     def pom = readMavenPom file: 'pom.xml'
