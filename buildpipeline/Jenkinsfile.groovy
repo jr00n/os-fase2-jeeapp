@@ -39,13 +39,10 @@ pipeline {
             steps {
                 unstash 'ws'
                 sh(script: "${mvnCmd} test")
-                //sh(script: "${mvnCmd} findbugs:findbugs")
             }
             post {
 				success {
 					junit '**/surefire-reports/**/*.xml'
-                    //findbugs jenkins plugin installeren
-					//findbugs pattern: 'target/**/findbugsXml.xml', unstableTotallAll: '0'
 				}
             }
 		}
@@ -137,7 +134,7 @@ pipeline {
                                     }
                             } catch (error) {
                                 // Slurp Error ;)
-                                //throw error
+                                throw error
                             } finally {
                                 archive 'src/test/robot/output/*'
                             }
