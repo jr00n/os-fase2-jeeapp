@@ -118,28 +118,38 @@ pipeline {
                     steps {
                         // uitzoeken hoe we dit niet scripted kunnen
                         script {
-                            try {
+                            openshift.withCluster() {
+                                try {
                                     unstash name: "ws"
+                                    // always start with a clean test output directory
+                                    sh(script: "rm -rf src/test/robot/output/")
                                     // service discovery..app
-                                    def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                                    appURL = "http://" + appURL
+
+                                    def appRoute = openshift.raw("get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}")
+                                    def appURL = "http://" + appRoute.out
                                     // service discovery..selenium Hub
-                                    def seleniumHubURL = sh(script: ocCmd + " get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
-                                    seleniumHubURL = "http://" + seleniumHubURL + "/wd/hub"
+
+                                    def seleniumHubRoute = openshift.raw("get routes -l app=selenium-grid -o template --template {{range.items}}{{.spec.host}}{{end}}")
+                                    seleniumHubURL = "http://" + seleniumHubRoute.out + "/wd/hub"
                                     //seleniumHubURL = "http://selenium-grid:4444/wd/hub" // werkt helaas nog niet, uitzoeken!!
 
                                     dir ('src/test/robot') {
                                         sh('chmod +x ./runtests.sh')
                                         sh(script: "./runtests.sh ${seleniumHubURL} ${appURL}")
                                     }
-                            } catch (error) {
-                                // Slurp Error ;)
-                                //throw error
-                            } finally {
-                                archive 'src/test/robot/output/*'
+                                } catch (error) {
+                                    // Slurp Error ;)
+                                    // nu voor de demo even laten doorlopen....
+                                    // wat er zitten fouten in en ik wil erroreport tonen
+                                    // maar wel door met deployen
+                                    //throw error
+                                } finally {
+                                    archive 'src/test/robot/output/*'
+                                    sh(script: "rm -rf src/test/robot/output/")
+                                }
                             }
                         }
-                    }
+                    }   
                 }
                 stage('Sonar Analysis') {
                     agent {
@@ -152,5 +162,36 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to STAGE') {
+
+                unstash name: "ws"
+                openshift.verbose()
+                openshift.loglevel(2)
+
+                script {
+                    openshift.withCluster() {
+                        // maak een nieuwe tag/versie in stage area
+                        openshift.tag("${appName}:latest", "javateam-stage/${appName}:latest")
+
+                        openshift.withProject("javateam-stage") {
+                            // ruim eerst de objecten op die zijn blijven staan
+                            if (openshift.selector('dc', "${appName}").exists()) {
+                                openshift.selector('dc', "${appName}").delete()
+                                openshift.selector('svc', "${appName}").delete()
+                                openshift.selector('route', "${appName}").delete()
+                            }
+                            result = openshift.raw("apply", "-f openshift/app-template-stage.yaml")
+                            // dit template moet een deployment hebben van het image met tag 'latest'
+                            // er zit geen trigger in om te deployen bij image change
+
+                            // en we starten een deployment in OpenShift
+                            if (openshift.selector('dc', "${appName}").exists()) {
+                                // deze latest heeft niets met tag 'latest' te maken
+                                openshift.raw("rollout","latest","${appName}")
+                            }
+                        }
+                    }
+                }
+            }
     }
 }
