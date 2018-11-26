@@ -167,13 +167,11 @@ pipeline {
                 label "jos-m3-openjdk8"
             }
             steps {
-                openshift.withCluster() {
-                    unstash name: "ws"
-                    openshift.verbose()
-                    openshift.loglevel(2)
-
-                    script {
-                        
+                unstash name: "ws"
+                script {
+                    openshift.withCluster() {
+                        openshift.verbose()
+                        openshift.loglevel(2)
                         // maak een nieuwe tag/versie in stage area
                         openshift.tag("${appName}:latest", "javateam-stage/${appName}:latest")
 
