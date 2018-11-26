@@ -119,7 +119,7 @@ pipeline {
                         // uitzoeken hoe we dit niet scripted kunnen
                         script {
                             try {
-                                    unstash name: "all"
+                                    unstash name: "ws"
                                     // service discovery..app
                                     def appURL = sh(script: ocCmd + " get routes -l app=${appName} -o template --template {{range.items}}{{.spec.host}}{{end}}", returnStdout: true)
                                     appURL = "http://" + appURL
@@ -134,7 +134,7 @@ pipeline {
                                     }
                             } catch (error) {
                                 // Slurp Error ;)
-                                throw error
+                                //throw error
                             } finally {
                                 archive 'src/test/robot/output/*'
                             }
