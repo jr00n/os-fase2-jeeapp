@@ -156,14 +156,17 @@ pipeline {
                         label "jos-m3-openjdk8"
                     }
                     steps {
-                        unstash 'ws'
+                        unstash name: 'ws'
                         sh(script: "${mvnCmd} sonar:sonar -DskiptTests -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
                     }
                 }
             }
         }
         stage('Deploy to STAGE') {
-
+            agent {
+                label "jos-m3-openjdk8"
+            }
+            steps {
                 unstash name: "ws"
                 openshift.verbose()
                 openshift.loglevel(2)
@@ -193,5 +196,6 @@ pipeline {
                     }
                 }
             }
+        }
     }
 }
