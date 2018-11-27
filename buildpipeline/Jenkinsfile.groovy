@@ -93,6 +93,9 @@ pipeline {
                         openshift.set("probe dc/os-fase2-jeeapp --readiness --get-url=http://:8080/ --initial-delay-seconds=30 --failure-threshold=10 --period-seconds=10")
                         openshift.set("probe dc/os-fase2-jeeapp --liveness  --get-url=http://:8080/ --initial-delay-seconds=180 --failure-threshold=10 --period-seconds=10")
                         def dc = openshift.selector("dc", "os-fase2-jeeapp ")
+                        
+                        dc.rollout().latest();
+
                         while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
                             sleep 10
                         }
