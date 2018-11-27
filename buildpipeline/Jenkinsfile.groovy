@@ -1,5 +1,5 @@
 #!groovy
-def mvnCmd = "mvn -B -s buildpipeline/demo-maven-settings.xml"
+def mvnCmd = "mvn -B -s buildpipeline/maven-settings.xml -gs buildpipeline/demo-maven-settings.xml"
 def appName = "os-fase2-jeeapp"
 def version
 def project = env.PROJECT_NAME
@@ -28,7 +28,7 @@ pipeline {
             }
             steps {
                 unstash 'ws'
-                sh(script: "${mvnCmd} help:effective-settings" )
+                sh(script: "${mvnCmd} help:effective-setting" )
 				sh(script: "${mvnCmd} -DskipTests -Popenshift clean package" )
 				stash name: 'war', includes: 'target/**/*'
             }    

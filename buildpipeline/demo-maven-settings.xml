@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
 
-	<servers>
-		<server>
-			<id>ywb.release</id>
-			<username>user.ywb</username>
-			<password>${env.NEXUS_PASSWORD}</password>
-		</server>
-	</servers>
+    <proxies>
+        <!-- ### configured http proxy ### -->
+    </proxies>
 
-	<mirrors>
-        <mirror>
-            <id>central</id>
-            <mirrorOf>*</mirrorOf>
-			<name>Maven2 official repo</name>
-            <url>>http://repo.maven.apache.org/maven2</url>
-        </mirror>
-    </mirrors>
+    <profiles>
 
+        <!-- Define the repository "central" like the Maven Super POM, but via https -->
+	<!-- we use our mirror to resolve artifacts from central -->
+        <profile>
+            <id>onlyhttpscentral</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                     <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>onlyhttpscentral</activeProfile>
+        <activeProfile>jos</activeProfile>
+    </activeProfiles>
 </settings>
