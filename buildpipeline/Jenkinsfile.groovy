@@ -199,5 +199,21 @@ pipeline {
                 }
             }
         }
+        stage('Promote to PROD?') {
+            steps{
+                timeout(time:30, unit:'MINUTES') {
+                    input message: "Promote to PROD?", ok: "Promote"
+                }
+
+                script {
+                    openshift.withCluster() {
+                        // maak een nieuwe tag/versie
+                        openshift.tag("${appName}:latest", "javateam/${appName}:${version}")
+                        // maak deze versie production ready in het stagep project
+                        openshift.tag("javateam/${appName}:${version}", "javateam/${appName}:production")
+                    }
+                }
+            }
+        }
     }
 }
