@@ -28,7 +28,6 @@ pipeline {
             }
             steps {
                 unstash 'ws'
-                sh(script: "${mvnCmd} help:effective-setting" )
 				sh(script: "${mvnCmd} -DskipTests -Popenshift clean package" )
 				stash name: 'war', includes: 'target/**/*'
             }    
