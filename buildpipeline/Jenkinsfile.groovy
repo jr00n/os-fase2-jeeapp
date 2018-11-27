@@ -160,7 +160,7 @@ pipeline {
                     }
                     steps {
                         unstash name: 'ws'
-                        sh(script: "${mvnCmd} sonar:sonar -DskiptTests -Dsonar.host.url=${testSonarHostUrl} -Dsonar.login=${testSonarLoginId} ")
+                        sh(script: "${mvnCmd} sonar:sonar -P!jos -Dsonar.host.url=http://sonarqube:9000 -DskipTests")
                     }
                 }
             }
