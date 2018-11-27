@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newBuild("--name=os-fase2-javaee", "--image-stream=wildfly:10.1", "--binary=true")
+                        openshift.newBuild("--name=os-fase2-jeeapp", "--image-stream=wildfly:10.1", "--binary=true")
                     }
                 }
             }
